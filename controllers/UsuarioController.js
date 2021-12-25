@@ -2,11 +2,12 @@ const usuarioModel = require('../models/Usuario');
 const bcrypt = require('bcrypt');
 const {validationResult} = require('express-validator');
 
-exports.NuevoUsuario =  async(req,res) => {
+exports.NuevoUsuario =  async(req, res, next) => {
     //mostrar mensajes de error
     const errores = validationResult(req);
     if (!errores.isEmpty()) {
-        return res.status(400).json({errores:errores.array()});
+        res.status(400).json({errores:errores.array()});
+        return next();
     }
 
     try {
@@ -14,7 +15,8 @@ exports.NuevoUsuario =  async(req,res) => {
         const {email, password} = req.body;
         let usuario = await usuarioModel.findOne({email});
         if (usuario) {
-            return res.status(400).json({msg:'el usuario ya existe'});
+            res.status(400).json({msg:'el usuario ya existe'});
+            return next();
         }
 
         //crar usuario
@@ -26,9 +28,11 @@ exports.NuevoUsuario =  async(req,res) => {
 
         await usuario.save();
 
-        res.status(200).json({msg:'usuario creado'})   
+        res.status(200).json({msg:'usuario creado'});
+        return next();        
     } catch (error) {
         console.log(error);
-        res.status(500).json({msg:'error al crear usuario'})
+        res.status(500).json({msg:'error al crear usuario'});
+        return next();
     }
 }

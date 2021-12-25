@@ -2,6 +2,7 @@ const express = require('express');
 require('dotenv').config({path: '.env'});
 const conexionDB = require('./config/database');
 const usuariosRuta = require('./routes/usuraios');
+const authRuta = require('./routes/auth');
 
 //crear servidor
 const app = express();
@@ -17,6 +18,7 @@ app.use(express.json());
 
 //rutas de API
 app.use('/api/usuarios', usuariosRuta);
+app.use('/api/auth', authRuta);
 
 app.listen(port, '0.0.0.0', () => {
     console.log(`servidor ejecutandose en el puerto ${port}`);
