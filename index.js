@@ -4,6 +4,7 @@ const conexionDB = require('./config/database');
 const usuariosRuta = require('./routes/usuraios');
 const authRuta = require('./routes/auth');
 const enlacesRuta = require('./routes/enlaces');
+const archivosRuta = require('./routes/archivos');
 
 //crear servidor
 const app = express();
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use('/api/usuarios', usuariosRuta);
 app.use('/api/auth', authRuta);
 app.use('/api/enlaces', enlacesRuta);
+app.use('/api/archivos', archivosRuta);
 
 app.listen(port, '0.0.0.0', () => {
     console.log(`servidor ejecutandose en el puerto ${port}`);

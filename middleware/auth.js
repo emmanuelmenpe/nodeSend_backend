@@ -19,7 +19,7 @@ module.exports = (req, res, next) => {
 
         console.log(usuario);
         req.usuario = usuario;
-    
+
         return next();
     } catch (error) {
         console.log(error);

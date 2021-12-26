@@ -50,3 +50,25 @@ exports.nuevoEnlace = async (req, res, next) => {
         return next();
     }
 }
+
+exports.obtenerEnlace = async(req, res, next) => {
+    // verificar si existe el enlace
+    const {url} = req.params;
+    const enlace = await enlaceModel.findOne({url});
+    //console.log(enlace);
+    if (!enlace) {
+        res.status(404).json({msg:'enlace no existe'});
+    }
+
+    res.status(200).json({archivo:enlace.nombre});
+
+    const {descargas, nombre} = enlace;
+    if (descargas === 1) {
+        req.archivo = nombre;//crear una variable interna(pasarla por req)
+        await enlaceModel.findByIdAndRemove(req.params.url);//eliminar enlace de BD
+        return next();//pasar al siguiente controlador(archivosController.eliminarArchivo)
+    } else {
+        enlace.descargas--;
+        await enlace.save();
+    }
+}
