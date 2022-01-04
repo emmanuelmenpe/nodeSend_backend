@@ -12,13 +12,13 @@ exports.nuevoEnlace = async (req, res, next) => {
     }
 
     try {
-        const {nombre_original} = req.body;
+        const {nombre_original, nombre} = req.body;
 
         const enlace = new enlaceModel();
 
         //crear objeto del enlace
         enlace.url = shortid.generate();
-        enlace.nombre = shortid.generate();
+        enlace.nombre = nombre;
         enlace.nombre_original=nombre_original;
 
         //si el usuario esta autenticado
@@ -52,23 +52,31 @@ exports.nuevoEnlace = async (req, res, next) => {
 }
 
 exports.obtenerEnlace = async(req, res, next) => {
-    // verificar si existe el enlace
-    const {url} = req.params;
-    const enlace = await enlaceModel.findOne({url});
-    //console.log(enlace);
-    if (!enlace) {
-        res.status(404).json({msg:'enlace no existe'});
+    try {
+        // verificar si existe el enlace
+        const {url} = req.params;
+        const enlace = await enlaceModel.findOne({url});
+        
+        if (!enlace) {
+            res.status(404).json({msg:'enlace no existe'});
+        }
+
+        res.status(200).json({archivo:enlace.nombre});
+        return next();
+    } catch (error) {
+        console.log('Ha ocurrido un error: '+error.message);
     }
+}
 
-    res.status(200).json({archivo:enlace.nombre});
-
-    const {descargas, nombre} = enlace;
-    if (descargas === 1) {
-        req.archivo = nombre;//crear una variable interna(pasarla por req)
-        await enlaceModel.findByIdAndRemove(req.params.url);//eliminar enlace de BD
-        return next();//pasar al siguiente controlador(archivosController.eliminarArchivo)
-    } else {
-        enlace.descargas--;
-        await enlace.save();
+exports.todosEnlaces = async (req, res, next) => {
+    try {
+        const enlaces = await enlaceModel.find({}).select('url -_id');
+        console.log(enlaces);
+        res.status(200).json({enlaces});
+        return next();
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({msg:'error al obtener URLs'});
+        return next();
     }
 }

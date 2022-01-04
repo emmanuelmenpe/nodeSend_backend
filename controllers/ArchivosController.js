@@ -49,3 +49,27 @@ exports.eliminarArchivo = async (req, res, next) => {
         console.log(error);
     }
 }
+
+exports.descargar = async (req, res, next) => {
+    try {
+        const {archivo} = req.params;
+        //console.log(archivo);
+        const enlace = await enlaceModel.findOne({nombre: archivo});
+        //console.log(enlace);
+        const archivoDescarga = __dirname + '/../uploads/'+archivo;
+        res.download(archivoDescarga);
+
+
+        const {descargas, nombre} = enlace;
+        if (descargas === 1) {
+            req.archivo = nombre;//crear una variable interna(pasarla por req)
+            await enlaceModel.findByIdAndDelete(enlace.id);//eliminar enlace de BD
+            return next();//pasar al siguiente controlador(archivosController.eliminarArchivo)
+        } else {
+            enlace.descargas--;
+            await enlace.save();
+        }
+    } catch (error) {
+        console.log('error en controlador descargar'+error.message);
+    }
+}
